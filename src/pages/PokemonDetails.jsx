@@ -164,45 +164,27 @@ const PokemonDetails = () => {
         {evolutionChain.length > 0 && (
           <div style={{ marginTop: '3rem' }}>
             <h3 style={{ textAlign: 'center', marginBottom: '2rem' }}>Evolution Chain</h3>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="evo-container">
                {/* Recursive Rendering Function */}
                {(() => {
                  const RenderNode = ({ node }) => (
-                   <div style={{ display: 'flex', alignItems: 'center' }}>
+                   <div className="evo-node">
                      {/* The Card */}
                      <Link to={`/pokemon/${node.id}`} style={{ textAlign: 'center' }}>
-                        <div className="glass" style={{ 
-                            padding: '1.5rem', 
-                            display: 'flex', 
-                            flexDirection: 'column', 
-                            alignItems: 'center', 
-                            minWidth: '140px',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            margin: '0.5rem'
-                        }}>
-                           <div style={{
-                              position: 'absolute',
-                              top: '-10px',
-                              right: '-10px',
-                              fontSize: '60px',
-                              opacity: 0.1,
-                              fontWeight: 'bold',
-                              color: 'var(--text-light)',
-                              zIndex: 0
-                           }}>
+                        <div className="glass evo-card">
+                           <div className="evo-bg-number">
                               #{node.id.toString().padStart(3, '0')}
                            </div>
 
                            <img 
                               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${node.id}.png`} 
                               alt={node.species_name}
-                              style={{ width: '100px', height: '100px', zIndex: 1, filter: 'drop-shadow(0 5px 5px rgba(0,0,0,0.3))' }}
+                              className="evo-image"
                            />
-                           <span style={{ textTransform: 'capitalize', fontWeight: 'bold', fontSize: '1.1rem', zIndex: 1, marginTop: '0.5rem' }}>{node.species_name}</span>
+                           <span className="evo-name">{node.species_name}</span>
                            
                            {node.types && (
-                               <div style={{ display: 'flex', gap: '0.3rem', marginTop: '0.5rem', zIndex: 1 }}>
+                               <div className="evo-types">
                                    {node.types.map(t => (
                                        <TypeBadge key={t.type.name} type={t.type.name} /> 
                                    ))}
@@ -213,22 +195,22 @@ const PokemonDetails = () => {
 
                      {/* Children */}
                      {node.evolves_to.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginLeft: '1rem' }}>
+                        <div className="evo-children">
                            {node.evolves_to.map(child => (
-                              <div key={child.id} style={{ display: 'flex', alignItems: 'center' }}>
+                              <div key={child.id} className="evo-child-row">
                                  {/* Arrow & Info */}
-                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '1rem' }}>
-                                   {child.min_level && <span style={{ fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 'bold' }}>Lvl {child.min_level}</span>}
+                                 <div className="evo-transition">
+                                   {child.min_level && <span className="evo-level">Lvl {child.min_level}</span>}
                                    {child.item && (
-                                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '0.2rem' }}>
+                                       <div className="evo-item-container">
                                           <img 
                                             src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${child.item.name}.png`}
                                             alt={child.item.name}
-                                            style={{ width: '30px', height: '30px' }}
+                                            className="evo-item-image"
                                           />
                                        </div>
                                    )}
-                                   <div style={{ fontSize: '2rem', opacity: 0.5, lineHeight: 1 }}>→</div>
+                                   <div className="evo-arrow">→</div>
                                  </div>
                                  
                                  <RenderNode node={child} />
