@@ -42,20 +42,20 @@ const PokemonDetails = () => {
       </Link>
 
       <motion.div 
-        className="glass"
+        className="glass details-card"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        style={{ padding: '3rem', maxWidth: '900px', margin: '0 auto' }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '3rem', textTransform: 'capitalize', marginBottom: '1rem' }}>
-            {pokemon.name} <span style={{ opacity: 0.5, fontSize: '2rem' }}>#{pokemon.id.toString().padStart(3, '0')}</span>
-          </h1>
+        <div className="details-header">
+          <div className="details-title-container">
+            <h1 className="details-title">{pokemon.name}</h1>
+            <span className="details-id">#{pokemon.id.toString().padStart(3, '0')}</span>
+          </div>
           <img 
             src={pokemon.sprites.other['official-artwork'].front_default} 
             alt={pokemon.name}
-            style={{ width: '300px', height: '300px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }}
+            style={{ width: '300px', height: '300px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))', maxWidth: '100%', objectFit: 'contain' }}
           />
            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             {pokemon.types.map((t) => (
@@ -64,16 +64,16 @@ const PokemonDetails = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+        <div className="details-grid">
            <div>
               <h3>Stats</h3>
               {pokemon.stats.map(s => (
-                  <div key={s.stat.name} style={{ marginBottom: '0.5rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                  <div key={s.stat.name} className="stat-row">
+                      <div className="stat-label">
                           <span style={{ textTransform: 'capitalize' }}>{s.stat.name}</span>
                           <b>{s.base_stat}</b>
                       </div>
-                      <div style={{ width: '100%', background: 'rgba(255,255,255,0.1)', height: '8px', borderRadius: '4px' }}>
+                      <div className="stat-bar-bg">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(s.base_stat, 100)}%` }}
@@ -95,7 +95,7 @@ const PokemonDetails = () => {
                   {species?.flavor_text_entries?.find(e => e.language.name === 'en')?.flavor_text.replace(/\f/g, ' ')}
               </p>
               
-              <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="attributes-grid">
                   <div className="glass" style={{ padding: '1rem', textAlign: 'center' }}>
                       <div style={{ opacity: 0.7 }}>Height</div>
                       <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{pokemon.height / 10} m</div>

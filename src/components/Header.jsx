@@ -14,7 +14,7 @@ const Header = () => {
       zIndex: 100
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(to right, #ff5350, #f7d02c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(to right, #ff5350, #f7d02c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
           Pokédex
         </h1>
       </Link>
