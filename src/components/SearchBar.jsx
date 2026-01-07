@@ -2,7 +2,14 @@ import React from 'react';
 
 const SearchBar = ({ searchTerm, setSearchTerm }) => {
   return (
-    <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ 
+      marginBottom: '2rem', 
+      display: 'flex', 
+      justifyContent: 'center',
+      position: 'sticky',
+      top: '7.5rem',
+      zIndex: 90
+    }}>
       <input
         type="text"
         placeholder="Search Pokemon..."

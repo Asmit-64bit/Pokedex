@@ -24,28 +24,28 @@ const Home = () => {
 
   // 3. Fetch details for visible items
   useEffect(() => {
+    let cancelled = false;
+
     const fetchDetails = async () => {
-      // Only fetch if we have items
-      if (visibleItems.length === 0) return;
+      // If no items match, clear the display immediately
+      if (visibleItems.length === 0) {
+        setDisplayedPokemon([]);
+        return;
+      }
       
       setDetailsLoading(true);
       
-      // Optimization: Only fetch items we don't already have details for
-      // But for simplicity/correctness with search, we'll map the visible slice
-      // In a real app we'd cache these by ID
-      
       const promises = visibleItems.map(async (item) => {
-        // We can extract ID from URL to avoid one network call if we cache, 
-        // but getPokemonDetails is needed for sprites/types.
-        // To prevent re-fetching the same data constantly in this simple implementation,
-        // we could rely on a cache, but let's just fetch for now and assume browser cache helpers.
         const details = await getPokemonDetails(item.name);
         return details;
       });
 
       const results = await Promise.all(promises);
-      setDisplayedPokemon(results.filter(r => r !== null));
-      setDetailsLoading(false);
+      
+      if (!cancelled) {
+        setDisplayedPokemon(results.filter(r => r !== null));
+        setDetailsLoading(false);
+      }
     };
 
     // Debounce slightly to prevent thrashing
@@ -53,12 +53,16 @@ const Home = () => {
         fetchDetails();
     }, 300);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      cancelled = true;
+    };
   }, [page, searchTerm, pokemonList]); // Re-run when page, search, or master list changes
 
-  // Reset page when search changes
+  // Reset page and scroll to top when search changes
   useEffect(() => {
     setPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [searchTerm]);
 
   const handleLoadMore = () => {
@@ -108,7 +112,7 @@ const Home = () => {
             
             {!detailsLoading && displayedPokemon.length === 0 && searchTerm && (
                 <div style={{textAlign: 'center', marginTop: '2rem'}}>
-                    No Pokemon found matching "{searchTerm}"
+                    Sorry, no results found
                 </div>
             )}
           </>
