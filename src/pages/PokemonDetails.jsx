@@ -7,9 +7,10 @@ import { motion } from 'framer-motion';
 
 const PokemonDetails = () => {
   const { id } = useParams();
-  const { getPokemonDetails, getPokemonSpecies } = usePokemon();
+  const { getPokemonDetails, getPokemonSpecies, getEvolutionChain } = usePokemon();
   const [pokemon, setPokemon] = useState(null);
   const [species, setSpecies] = useState(null);
+  const [evolutionChain, setEvolutionChain] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,6 +21,57 @@ const PokemonDetails = () => {
         setPokemon(data);
         const speciesData = await getPokemonSpecies(id);
         setSpecies(speciesData);
+
+        // Evolution Chain Logic
+        if (speciesData?.evolution_chain?.url) {
+          const evoDataRaw = await getEvolutionChain(speciesData.evolution_chain.url);
+          
+          // Recursive function to parse chain
+          const parseChain = (node) => {
+            const evoDetails = node.evolution_details[0];
+            const id = node.species.url.split('/').filter(Boolean).pop();
+            
+            return {
+              species_name: node.species.name,
+              min_level: !evoDetails ? null : evoDetails.min_level,
+              trigger_name: !evoDetails ? null : evoDetails.trigger.name,
+              item: !evoDetails ? null : evoDetails.item,
+              id: id,
+              evolves_to: node.evolves_to.map(child => parseChain(child))
+            };
+          };
+
+          const rootNode = parseChain(evoDataRaw.chain);
+
+          // Flatten tree to get all IDs for Type fetching
+          const getAllIds = (node) => {
+            let ids = [node.id];
+            node.evolves_to.forEach(child => {
+              ids = [...ids, ...getAllIds(child)];
+            });
+            return ids;
+          };
+          
+          const allIds = getAllIds(rootNode);
+          
+          // Fetch types for potentially branching unique IDs to avoid duplicates if any
+          const uniqueIds = [...new Set(allIds)];
+          const typeMap = {};
+          
+          await Promise.all(uniqueIds.map(async (uid) => {
+             const details = await getPokemonDetails(uid);
+             if (details) typeMap[uid] = details.types;
+          }));
+
+          // Attach types to tree
+          const enrichTree = (node) => {
+             node.types = typeMap[node.id];
+             node.evolves_to.forEach(enrichTree);
+          };
+          
+          enrichTree(rootNode);
+          setEvolutionChain([rootNode]); // Wrap in array to keep state structure simple or just use root
+        }
       }
       setLoading(false);
     };
@@ -107,6 +159,91 @@ const PokemonDetails = () => {
               </div>
            </div>
         </div>
+
+        {/* Evolution Chain Section */}
+        {evolutionChain.length > 0 && (
+          <div style={{ marginTop: '3rem' }}>
+            <h3 style={{ textAlign: 'center', marginBottom: '2rem' }}>Evolution Chain</h3>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+               {/* Recursive Rendering Function */}
+               {(() => {
+                 const RenderNode = ({ node }) => (
+                   <div style={{ display: 'flex', alignItems: 'center' }}>
+                     {/* The Card */}
+                     <Link to={`/pokemon/${node.id}`} style={{ textAlign: 'center' }}>
+                        <div className="glass" style={{ 
+                            padding: '1.5rem', 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            minWidth: '140px',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            margin: '0.5rem'
+                        }}>
+                           <div style={{
+                              position: 'absolute',
+                              top: '-10px',
+                              right: '-10px',
+                              fontSize: '60px',
+                              opacity: 0.1,
+                              fontWeight: 'bold',
+                              color: 'var(--text-light)',
+                              zIndex: 0
+                           }}>
+                              #{node.id.toString().padStart(3, '0')}
+                           </div>
+
+                           <img 
+                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${node.id}.png`} 
+                              alt={node.species_name}
+                              style={{ width: '100px', height: '100px', zIndex: 1, filter: 'drop-shadow(0 5px 5px rgba(0,0,0,0.3))' }}
+                           />
+                           <span style={{ textTransform: 'capitalize', fontWeight: 'bold', fontSize: '1.1rem', zIndex: 1, marginTop: '0.5rem' }}>{node.species_name}</span>
+                           
+                           {node.types && (
+                               <div style={{ display: 'flex', gap: '0.3rem', marginTop: '0.5rem', zIndex: 1 }}>
+                                   {node.types.map(t => (
+                                       <TypeBadge key={t.type.name} type={t.type.name} /> 
+                                   ))}
+                               </div>
+                           )}
+                        </div>
+                     </Link>
+
+                     {/* Children */}
+                     {node.evolves_to.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginLeft: '1rem' }}>
+                           {node.evolves_to.map(child => (
+                              <div key={child.id} style={{ display: 'flex', alignItems: 'center' }}>
+                                 {/* Arrow & Info */}
+                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: '1rem' }}>
+                                   {child.min_level && <span style={{ fontSize: '0.9rem', marginBottom: '0.2rem', fontWeight: 'bold' }}>Lvl {child.min_level}</span>}
+                                   {child.item && (
+                                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '0.2rem' }}>
+                                          <img 
+                                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${child.item.name}.png`}
+                                            alt={child.item.name}
+                                            style={{ width: '30px', height: '30px' }}
+                                          />
+                                       </div>
+                                   )}
+                                   <div style={{ fontSize: '2rem', opacity: 0.5, lineHeight: 1 }}>→</div>
+                                 </div>
+                                 
+                                 <RenderNode node={child} />
+                              </div>
+                           ))}
+                        </div>
+                     )}
+                   </div>
+                 );
+                 
+                 return <RenderNode node={evolutionChain[0]} />;
+               })()}
+            </div>
+          </div>
+        )}
 
       </motion.div>
     </div>

@@ -41,6 +41,18 @@ export const usePokemon = () => {
         }
     }
 
+
+
+    const getEvolutionChain = async (url) => {
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    };
+
     useEffect(() => {
         fetchPokemonList();
     }, []);
@@ -50,6 +62,7 @@ export const usePokemon = () => {
         loading,
         error,
         getPokemonDetails,
-        getPokemonSpecies
+        getPokemonSpecies,
+        getEvolutionChain
     };
 };
