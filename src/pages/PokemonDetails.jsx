@@ -128,7 +128,7 @@ const PokemonDetails = () => {
                       <div className="stat-bar-bg">
                           <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(s.base_stat, 100)}%` }}
+                            animate={{ width: `${Math.min((s.base_stat / 200) * 100, 100)}%` }}
                             transition={{ duration: 1, delay: 0.5 }}
                             style={{ 
                                 height: '100%', 
