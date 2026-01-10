@@ -13,7 +13,7 @@ export const usePokemon = () => {
         setLoading(true);
         try {
             // Fetch all pokemon at once (lightweight list)
-            const response = await axios.get(`${BASE_URL}/pokemon?limit=1025`);
+            const response = await axios.get(`${BASE_URL}/pokemon?limit=1302`);
             setPokemonList(response.data.results);
         } catch (err) {
             setError(err.message);
