@@ -7,11 +7,20 @@ import { usePokemon } from '../hooks/usePokemon';
 import { motion } from 'framer-motion';
 
 const Home = () => {
-  const { pokemonList, loading, error, getPokemonDetails } = usePokemon();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { 
+    pokemonList, 
+    loading, 
+    error, 
+    getPokemonDetails,
+    searchTerm,
+    setSearchTerm,
+    page,
+    setPage
+  } = usePokemon();
+
   const [displayedPokemon, setDisplayedPokemon] = useState([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  
   const ITEMS_PER_PAGE = 20;
 
   // 1. Filter the master list
@@ -57,13 +66,50 @@ const Home = () => {
       clearTimeout(timeoutId);
       cancelled = true;
     };
-  }, [page, searchTerm, pokemonList]); // Re-run when page, search, or master list changes
+  }, [page, searchTerm, pokemonList, getPokemonDetails]); // Re-run when page, search, or master list changes
 
   // Reset page and scroll to top when search changes
-  useEffect(() => {
-    setPage(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [searchTerm]);
+  // Note: We need to be careful not to reset if we are just navigating back.
+  // We can track the previous search term to check if it actually changed, or just rely on user action.
+  // For now, let's keep the existing behavior but it might reset on mount if not handled.
+  // Actually, since searchTerm is now global, we only want to reset page if the USER changes the term, not on mount.
+  // The SearchBar component calls setSearchTerm. We should move the page reset there or handle it here with a ref.
+  
+  // However, specifically for the task "clicking back button shouldn't refresh", 
+  // we want to PRESERVE the page. 
+  // The original code reset page to 1 when searchTerm changed. 
+  // Since searchTerm is now preserved, we don't need to do anything special here 
+  // EXCEPT ensuring we don't reset page on mount.
+  
+  // This effect was:
+  // useEffect(() => {
+  //   setPage(1);
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // }, [searchTerm]);
+  
+  // If we leave this, it will run on mount because searchTerm comes from context? 
+  // No, useEffect runs on dependency change. On mount, it runs once.
+  // If we come back and searchTerm is 'pika', it runs.
+  // We DO NOT want to reset page to 1 on mount if we are coming back.
+  
+  // Let's modify SearchBar to handle page reset, or use a ref to track if it's the first mount.
+  // But strictly following the task to simply 'use context', I should be careful.
+  
+  // A better approach for the search-reset-page logic is to do it in the event handler, but SearchBar takes `setSearchTerm`.
+  // Let's just remove this side effect from Home.jsx and assume the user wants to keep their page 
+  // even if they change search term (or we can move it to a handler if we had access).
+  // OR, we can use a ref to track IsFirstMount.
+
+  // Let's REMOVE the auto-reset effect for now to ensure persistence works as requested.
+  // If the user types a new search, they might want to see the top results, but `setPage(1)` 
+  // inside the `onSearch` handler would be better.
+  // Since `SearchBar` is passed `setSearchTerm`, let's wrap it.
+
+  const handleSearchChange = (term) => {
+      setSearchTerm(term);
+      setPage(1); // Reset page when USER searches
+      // window.scrollTo({ top: 0, behavior: 'smooth' }); // Optional: scroll to top
+  };
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1);
@@ -77,7 +123,7 @@ const Home = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchBar searchTerm={searchTerm} setSearchTerm={handleSearchChange} />
         
         {error && <div style={{ textAlign: 'center', color: 'red' }}>Error: {error}</div>}
         
