@@ -1,57 +1,50 @@
 <div align="center">
-
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=32&pause=1000&color=FF6B35&center=true&vCenter=true&width=500&height=70&lines=Pok%C3%A9dex;Gotta+catch+%27em+all!" alt="Pokedex" />
-
-<p>A fast, clean Pokémon explorer built with React — browse the entire Pokédex, search by name, and dive into detailed stats, evolution chains, and more.</p>
-
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-FF6B35?style=for-the-badge&logo=vercel&logoColor=white)](https://pokedex-jet-pi.vercel.app)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev)
-
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=32&pause=99999&color=FF6B35&center=true&vCenter=true&width=500&height=70&lines=Pok%C3%A9dex&repeat=false" alt="Pokedex" />
+<p>A fast, clean Pokémon explorer built with React. Browse the entire Pokédex, search by name, and dive into detailed stats, evolution chains, and physical characteristics.</p>
+<strong><a href="https://pokedex-jet-pi.vercel.app" target="_blank">View Live Demo</a></strong>
 </div>
 
 ---
 
 ## Screenshots
 
-### Home — Pokémon Grid
-> Dark-themed 4-column grid with live search, Pokédex number watermarks, and color-coded type badges
-
-### Detail Page — Pokémon Info
-> Full stat breakdown, Pokédex description, height & weight, and complete evolution chain with level indicators
+| Home — Pokémon Grid | Detail Page — Stats & Info | Detail Page — Evolution Chain |
+| :---: | :---: | :---: |
+| <img src="./public/home.png" alt="Home Page" width="350"/> | <img src="./public/data1.png" alt="Detail Page Stats" width="350"/> | <img src="./public/data2.png" alt="Detail Page Evolution" width="350"/> |
+| *Dark-themed grid with live search, Pokédex number watermarks, and color-coded type badges.* | *Full stat breakdown, Pokédex description, and height & weight.* | *Complete evolution chain with level requirements.* |
 
 ---
 
 ## Features
 
 ### Home Page
-- **Live Search** — Filters Pokémon by name in real-time with partial matching — search `char` for all Charmander family, or `-mega` to instantly find every Mega Evolution. Includes a clear (✕) button
-- **Pokémon Cards** — Each card shows the sprite, name, Pokédex number watermark, and type badges
-- **Color-coded Type Badges** — Fire, Grass, Poison, Flying, and more — each type has its own distinct color
+- **Live Search:** Filters Pokémon by name in real-time with partial matching. Search `char` for all Pokémon with "char" in their name, or `-mega` to instantly find every Mega Evolution. Includes a quick-clear (✕) button.
+- **Pokémon Cards:** Each card displays the official sprite, name, a stylized Pokédex number watermark, and primary/secondary types.
+- **Color-Coded Type Badges:** Distinct, recognizable colors for all elemental types (Fire, Grass, Poison, Flying, etc.) for quick visual scanning.
 
 ### Detail Page
-- **Base Stats** — HP, Attack, Defense, Special-Attack, Special-Defense, Speed shown as animated progress bars
-- **Pokédex Entry** — Official flavor text description for each Pokémon
-- **Physical Info** — Height and weight displayed in a clean card layout
-- **Evolution Chain** — Full evolution line with level requirements (e.g. Charmander → Lvl 16 → Charmeleon → Lvl 36 → Charizard)
+- **Base Stats Breakdown:** HP, Attack, Defense, Special-Attack, Special-Defense, and Speed visualized through animated progress bars.
+- **Pokédex Entry:** Official flavor text and lore description for each Pokémon.
+- **Physical Info:** Height and weight metrics presented in a clean, isolated card layout.
+- **Evolution Chain:** Visual representation of the full evolution line, complete with level requirements (e.g., Charmander → Lvl 16 → Charmeleon → Lvl 36 → Charizard).
 
-### General
-- **Optimized API Fetching** — Efficient data fetching from PokéAPI via Axios with custom React hooks
-- **Smooth Animations** — Card transitions and page interactions powered by Framer Motion
-- **Responsive Layout** — Adapts cleanly across screen sizes
+### General Architecture
+- **Optimized API Fetching:** Efficient data retrieval from PokéAPI using Axios alongside custom React hooks to manage loading states and caching.
+- **Smooth Animations:** Fluid card transitions and page interactions powered by Framer Motion.
+- **Responsive Layout:** UI adapts cleanly and scales perfectly across mobile, tablet, and desktop viewports.
 
 ---
 
 ## Tech Stack
 
 | Technology | Purpose |
-|-----------|---------|
-| React 19 | UI framework |
-| Vite 7 | Build tool & dev server |
-| Axios | API data fetching |
-| React Router DOM v7 | Client-side routing (home ↔ detail page) |
-| Framer Motion | Animations & transitions |
-| PokéAPI | Pokémon data source |
+| :--- | :--- |
+| **React 19** | Core UI framework |
+| **Vite 7** | Build tool and development server |
+| **Axios** | Client HTTP requests and API data fetching |
+| **React Router DOM v7** | Client-side routing between home and detail views |
+| **Framer Motion** | Complex UI animations and route transitions |
+| **PokéAPI** | Primary RESTful data source |
 
 ---
 
@@ -59,27 +52,33 @@
 
 ### Prerequisites
 
-- Node.js (v18+)
+Ensure you have the following installed on your local machine:
+- Node.js (v18 or higher)
 - npm or yarn
 
-### Installation
+### Installation & Setup
 
+1. **Clone the repository**
 ```bash
-# Clone the repository
 git clone https://github.com/Asmit-64bit/Pokedex.git
 cd Pokedex
+```
 
-# Install dependencies
+2. **Install dependencies**
+```bash
 npm install
+```
 
-# Start the development server
+3. **Start the development server**
+```bash
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+Open [http://localhost:5173](http://localhost:5173) to view the application in your browser.
 
 ### Build for Production
 
+To generate a production-ready build, run:
 ```bash
 npm run build
 ```
@@ -90,12 +89,31 @@ npm run build
 
 ```
 Pokedex/
-├── public/
+├── public/                        # Static assets served directly
+│   ├── home.png                   # Screenshot — home page
+│   ├── data1.png                  # Screenshot — detail page (stats & info)
+│   ├── data2.png                  # Screenshot — detail page (evolution chain)
+│   └── vite.svg                   # Vite default favicon
 ├── src/
-│   ├── hooks/          # Custom React hooks (data fetching)
-│   ├── components/     # Reusable UI components
-│   ├── App.jsx
-│   └── main.jsx
+│   ├── assets/                    # Images and static resources
+│   ├── components/                # Reusable UI components
+│   │   ├── Header.jsx             # App header with title
+│   │   ├── Loader.jsx             # Loading spinner/state
+│   │   ├── PokemonCard.jsx        # Individual Pokémon card (sprite, name, number, badges)
+│   │   ├── PokemonList.jsx        # Grid of PokemonCard components
+│   │   ├── SearchBar.jsx          # Live search input with clear button
+│   │   └── TypeBadge.jsx          # Color-coded type pill (Fire, Grass, etc.)
+│   ├── context/
+│   │   └── PokemonContext.jsx     # Global state management via React Context
+│   ├── hooks/
+│   │   └── usePokemon.js          # Custom hook for PokéAPI data fetching & caching
+│   ├── pages/
+│   │   ├── Home.jsx               # Home page — search + Pokémon grid
+│   │   └── PokemonDetails.jsx     # Detail page — stats, info, evolution chain
+│   ├── App.jsx                    # Root component with route definitions
+│   ├── App.css                    # Global app styles
+│   ├── index.css                  # Base styles and CSS variables
+│   └── main.jsx                   # React DOM entry point
 ├── index.html
 └── package.json
 ```
