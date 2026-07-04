@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
-import SearchBar from '../components/SearchBar';
+import FilterPanel from '../components/FilterPanel';
 import PokemonList from '../components/PokemonList';
 import Loader from '../components/Loader';
 import { usePokemon } from '../hooks/usePokemon';
@@ -15,23 +15,100 @@ const Home = () => {
     searchTerm,
     setSearchTerm,
     page,
-    setPage
+    setPage,
+    selectedType,
+    selectedGeneration,
+    sortBy,
+    fetchPokemonByType
   } = usePokemon();
 
   const [displayedPokemon, setDisplayedPokemon] = useState([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [typePokemonList, setTypePokemonList] = useState([]);
+  const [typeLoading, setTypeLoading] = useState(false);
   
   const ITEMS_PER_PAGE = 20;
 
-  // 1. Filter the master list
-  const filteredList = pokemonList.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Extract ID from PokeAPI Pokemon URL
+  const getPokemonIdFromUrl = (url) => {
+    if (!url) return null;
+    const parts = url.split('/').filter(Boolean);
+    return parseInt(parts[parts.length - 1], 10);
+  };
 
-  // 2. Determine which items to show based on pagination/infinite scroll
+  // 1. Fetch type-specific list if type filter is active
+  useEffect(() => {
+    if (!selectedType) {
+      setTypePokemonList([]);
+      return;
+    }
+
+    let cancelled = false;
+    const loadTypePokemon = async () => {
+      setTypeLoading(true);
+      const list = await fetchPokemonByType(selectedType);
+      if (!cancelled) {
+        setTypePokemonList(list || []);
+        setTypeLoading(false);
+      }
+    };
+
+    loadTypePokemon();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedType, fetchPokemonByType]);
+
+  // Determine base list to use
+  const baseList = selectedType ? typePokemonList : pokemonList;
+
+  // Generation ID boundary mappings
+  const GENERATION_RANGES = {
+    all: { min: 1, max: Infinity },
+    gen1: { min: 1, max: 151 },
+    gen2: { min: 152, max: 251 },
+    gen3: { min: 252, max: 386 },
+    gen4: { min: 387, max: 493 },
+    gen5: { min: 494, max: 649 },
+    gen6: { min: 650, max: 721 },
+    gen7: { min: 722, max: 809 },
+    gen8: { min: 810, max: 898 },
+    gen9: { min: 899, max: 1025 },
+    special: { min: 10001, max: Infinity }
+  };
+
+  const range = GENERATION_RANGES[selectedGeneration] || GENERATION_RANGES.all;
+
+  // 2. Filter base list by search name and generation range
+  let filteredList = baseList.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const id = getPokemonIdFromUrl(p.url);
+    const matchesGen = id && id >= range.min && id <= range.max;
+    return matchesSearch && matchesGen;
+  });
+
+  // 3. Sort the filtered list
+  filteredList = [...filteredList].sort((a, b) => {
+    const idA = getPokemonIdFromUrl(a.url) || 0;
+    const idB = getPokemonIdFromUrl(b.url) || 0;
+
+    switch (sortBy) {
+      case 'id-desc':
+        return idB - idA;
+      case 'name-asc':
+        return a.name.localeCompare(b.name);
+      case 'name-desc':
+        return b.name.localeCompare(a.name);
+      case 'id-asc':
+      default:
+        return idA - idB;
+    }
+  });
+
+  // 4. Determine which items to show based on page slicing
   const visibleItems = filteredList.slice(0, page * ITEMS_PER_PAGE);
 
-  // 3. Fetch details for visible items
+  // 5. Fetch details for visible items
   useEffect(() => {
     let cancelled = false;
 
@@ -66,50 +143,7 @@ const Home = () => {
       clearTimeout(timeoutId);
       cancelled = true;
     };
-  }, [page, searchTerm, pokemonList, getPokemonDetails]); // Re-run when page, search, or master list changes
-
-  // Reset page and scroll to top when search changes
-  // Note: We need to be careful not to reset if we are just navigating back.
-  // We can track the previous search term to check if it actually changed, or just rely on user action.
-  // For now, let's keep the existing behavior but it might reset on mount if not handled.
-  // Actually, since searchTerm is now global, we only want to reset page if the USER changes the term, not on mount.
-  // The SearchBar component calls setSearchTerm. We should move the page reset there or handle it here with a ref.
-  
-  // However, specifically for the task "clicking back button shouldn't refresh", 
-  // we want to PRESERVE the page. 
-  // The original code reset page to 1 when searchTerm changed. 
-  // Since searchTerm is now preserved, we don't need to do anything special here 
-  // EXCEPT ensuring we don't reset page on mount.
-  
-  // This effect was:
-  // useEffect(() => {
-  //   setPage(1);
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // }, [searchTerm]);
-  
-  // If we leave this, it will run on mount because searchTerm comes from context? 
-  // No, useEffect runs on dependency change. On mount, it runs once.
-  // If we come back and searchTerm is 'pika', it runs.
-  // We DO NOT want to reset page to 1 on mount if we are coming back.
-  
-  // Let's modify SearchBar to handle page reset, or use a ref to track if it's the first mount.
-  // But strictly following the task to simply 'use context', I should be careful.
-  
-  // A better approach for the search-reset-page logic is to do it in the event handler, but SearchBar takes `setSearchTerm`.
-  // Let's just remove this side effect from Home.jsx and assume the user wants to keep their page 
-  // even if they change search term (or we can move it to a handler if we had access).
-  // OR, we can use a ref to track IsFirstMount.
-
-  // Let's REMOVE the auto-reset effect for now to ensure persistence works as requested.
-  // If the user types a new search, they might want to see the top results, but `setPage(1)` 
-  // inside the `onSearch` handler would be better.
-  // Since `SearchBar` is passed `setSearchTerm`, let's wrap it.
-
-  const handleSearchChange = (term) => {
-      setSearchTerm(term);
-      setPage(1); // Reset page when USER searches
-      // window.scrollTo({ top: 0, behavior: 'smooth' }); // Optional: scroll to top
-  };
+  }, [page, searchTerm, baseList, getPokemonDetails, selectedGeneration, sortBy]); // Re-run when page, search, baseList, generation, or sort changes
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1);
@@ -123,12 +157,12 @@ const Home = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <SearchBar searchTerm={searchTerm} setSearchTerm={handleSearchChange} />
+        <FilterPanel />
         
         {error && <div style={{ textAlign: 'center', color: 'red' }}>Error: {error}</div>}
         
-        {loading ? (
-             <div style={{textAlign: 'center', padding: '2rem'}}>Loading Library...</div>
+        {loading || typeLoading ? (
+             <div style={{textAlign: 'center', padding: '2rem'}}>Loading Pokemons...</div>
         ) : (
           <>
             <PokemonList pokemonList={displayedPokemon} />
@@ -156,7 +190,7 @@ const Home = () => {
                </div>
             )}
             
-            {!detailsLoading && displayedPokemon.length === 0 && searchTerm && (
+            {!detailsLoading && displayedPokemon.length === 0 && (searchTerm || selectedType || selectedGeneration !== 'all') && (
                 <div style={{textAlign: 'center', marginTop: '2rem'}}>
                     Sorry, no results found
                 </div>

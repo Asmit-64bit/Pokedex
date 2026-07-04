@@ -18,12 +18,7 @@ const PokemonList = ({ pokemonList }) => {
       variants={container}
       initial="hidden"
       animate="show"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: '2rem',
-        padding: '2rem 0'
-      }}
+      className="pokemon-grid"
     >
       {pokemonList.map((pokemon) => (
         <PokemonCard key={pokemon.id} pokemon={pokemon} />

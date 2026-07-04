@@ -17,6 +17,31 @@ export const PokemonProvider = ({ children }) => {
     // Cache for details to avoid refetching
     const [detailsCache, setDetailsCache] = useState({});
 
+    // Filter states
+    const [selectedType, setSelectedType] = useState('');
+    const [selectedGeneration, setSelectedGeneration] = useState('all');
+    const [sortBy, setSortBy] = useState('id-asc');
+    const [typeCache, setTypeCache] = useState({});
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    const fetchPokemonByType = useCallback(async (type) => {
+        if (!type) return null;
+        if (typeCache[type]) return typeCache[type];
+
+        try {
+            const response = await axios.get(`${BASE_URL}/type/${type}`);
+            const list = response.data.pokemon.map(p => p.pokemon);
+            setTypeCache(prev => ({
+                ...prev,
+                [type]: list
+            }));
+            return list;
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }, [typeCache]);
+
     const fetchPokemonList = useCallback(async () => {
         // If we already have the list, don't refetch
         if (pokemonList.length > 0) return;
@@ -88,6 +113,15 @@ export const PokemonProvider = ({ children }) => {
         setSearchTerm,
         page,
         setPage,
+        selectedType,
+        setSelectedType,
+        selectedGeneration,
+        setSelectedGeneration,
+        sortBy,
+        setSortBy,
+        isFilterOpen,
+        setIsFilterOpen,
+        fetchPokemonByType,
         getPokemonDetails,
         getPokemonSpecies,
         getEvolutionChain
