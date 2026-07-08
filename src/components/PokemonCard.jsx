@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import TypeBadge from './TypeBadge';
+import { getSpriteUrl } from '../utils/spriteHelper';
 
 const PokemonCard = ({ pokemon }) => {
   const primaryType = pokemon.types[0]?.type.name || 'normal';
@@ -52,7 +53,7 @@ const PokemonCard = ({ pokemon }) => {
         </div>
         
         <img
-          src={pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}
+          src={getSpriteUrl(pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default)}
           alt={pokemon.name}
           style={{ 
             width: '140px', 

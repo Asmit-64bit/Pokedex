@@ -4,6 +4,7 @@ import TypeBadge from '../components/TypeBadge';
 import Loader from '../components/Loader';
 import { usePokemon } from '../hooks/usePokemon';
 import { motion } from 'framer-motion';
+import { getSpriteUrl } from '../utils/spriteHelper';
 
 const PokemonDetails = () => {
   const { id } = useParams();
@@ -105,7 +106,7 @@ const PokemonDetails = () => {
             <span className="details-id">#{pokemon.id.toString().padStart(3, '0')}</span>
           </div>
           <img 
-            src={pokemon.sprites.other['official-artwork'].front_default} 
+            src={getSpriteUrl(pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default)} 
             alt={pokemon.name}
             style={{ width: '300px', height: '300px', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))', maxWidth: '100%', objectFit: 'contain' }}
           />
@@ -177,7 +178,7 @@ const PokemonDetails = () => {
                            </div>
 
                            <img 
-                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${node.id}.png`} 
+                              src={`https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${node.id}.png`} 
                               alt={node.species_name}
                               className="evo-image"
                            />
@@ -204,7 +205,7 @@ const PokemonDetails = () => {
                                    {child.item && (
                                        <div className="evo-item-container">
                                           <img 
-                                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${child.item.name}.png`}
+                                            src={`https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/items/${child.item.name}.png`}
                                             alt={child.item.name}
                                             className="evo-item-image"
                                           />
